@@ -1,100 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>School GPS Tracker</title>
+
+<title>Student Tracking System</title>
 
 <link rel="stylesheet" href="style.css">
 
-<!-- Leaflet Map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 </head>
 
 <body>
 
-<div class="container">
-
-<h1>School GPS Monitoring</h1>
+<h1>Student Tracking System</h1>
 
 <div id="home">
-<button onclick="showLogin()">Login</button>
-<button onclick="showRegister()">Register</button>
+
+<button onclick="showStudentLogin()">Student Login</button>
+
+<button onclick="showStudentRegister()">Student Register</button>
+
+<button onclick="showParentRegister()">Parent Register</button>
+
+<button onclick="showTeacherRegister()">Teacher Register</button>
+
+<button onclick="showParentTrack()">Parent Track</button>
+
+<button onclick="showTeacherTrack()">Teacher Track</button>
+
 </div>
 
-<div id="roleSelect" class="hidden">
-<h2>Select Role</h2>
-<button onclick="selectRole('student')">Student</button>
-<button onclick="selectRole('parent')">Parent / Teacher</button>
-</div>
 
 <!-- STUDENT REGISTER -->
 
-<div id="studentRegister" class="hidden formBox">
+<div id="studentRegister" class="hidden">
 
-<input id="name" placeholder="Name">
-<input id="roll" placeholder="Roll Number">
-<input id="age" placeholder="Age">
+<h2>Student Register</h2>
 
-<select id="gender">
-<option>Male</option>
-<option>Female</option>
-<option>Other</option>
-</select>
+<input id="sname" placeholder="Name">
 
-<input id="mother" placeholder="Mother Name">
-<input id="father" placeholder="Father Name">
-<input id="parentMobile" placeholder="Parent Mobile">
-<input id="studentMobile" placeholder="Student Mobile">
+<input id="sroll" placeholder="Roll Number">
 
-<button onclick="submitStudent()">Next</button>
+<input id="sfaculty" placeholder="Faculty Name">
 
-</div>
+<input id="sage" placeholder="Age">
 
+<input id="sgender" placeholder="Gender">
 
-<!-- PASSWORD -->
+<input id="spass" placeholder="Password">
 
-<div id="passwordScreen" class="hidden formBox">
-
-<p id="showRoll"></p>
-
-<input type="password" id="password" placeholder="Set Password">
-
-<button onclick="savePassword()">Register</button>
+<button onclick="registerStudent()">Register</button>
 
 </div>
 
 
-<!-- LOGIN -->
+<!-- STUDENT LOGIN -->
 
-<div id="loginBox" class="hidden formBox">
+<div id="studentLogin" class="hidden">
 
-<input id="loginRoll" placeholder="Roll Number">
-<input type="password" id="loginPass" placeholder="Password">
+<h2>Student Login</h2>
 
-<button onclick="login()">Login</button>
+<input id="lroll" placeholder="Roll Number">
 
-<p id="loginMsg"></p>
+<input id="lpass" placeholder="Password">
+
+<button onclick="loginStudent()">Login</button>
+
+<p id="status">Status: STOP</p>
+
+<button class="startBtn" onclick="start()">START</button>
+
+<button class="stopBtn" onclick="stop()">STOP</button>
 
 </div>
 
 
-<!-- TRACK STUDENT -->
+<!-- PARENT REGISTER -->
 
-<div id="trackBox" class="hidden">
+<div id="parentRegister" class="hidden">
 
-<h2>Track Student</h2>
+<h2>Parent Register</h2>
 
-<input id="trackRoll" placeholder="Enter Roll Number">
+<input id="pname" placeholder="Parent Name">
 
-<button onclick="trackStudent()">Track</button>
+<input id="childName" placeholder="Student Name">
+
+<input id="croll" placeholder="Roll Number">
+
+<input id="pmobile" placeholder="Mobile">
+
+<button onclick="registerParent()">Register</button>
+
+</div>
+
+
+<!-- TEACHER REGISTER -->
+
+<div id="teacherRegister" class="hidden">
+
+<h2>Teacher Register</h2>
+
+<input id="tname" placeholder="Teacher Name">
+
+<input id="tfaculty" placeholder="Faculty">
+
+<input id="tmobile" placeholder="Mobile">
+
+<button onclick="registerTeacher()">Register</button>
+
+</div>
+
+
+<!-- PARENT TRACK -->
+
+<div id="parentTrack" class="hidden">
+
+<h2>Track Child</h2>
+
+<input id="trackRoll" placeholder="Roll Number">
+
+<button onclick="track()">Track</button>
 
 <div id="map"></div>
 
 </div>
 
+
+<!-- TEACHER TRACK -->
+
+<div id="teacherTrack" class="hidden">
+
+<h2>Teacher Dashboard</h2>
+
+<input id="facultySearch" placeholder="Faculty">
+
+<button onclick="loadStudents()">Load Students</button>
+
+<select id="studentDropdown"></select>
+
+<button onclick="trackSelected()">Track Student</button>
+
+<div id="map2"></div>
+
 </div>
+
 
 <script src="script.js"></script>
 

@@ -1,106 +1,156 @@
-let studentData = {}
+let currentRoll=null
 let map
 let marker
 
-function showLogin(){
-document.getElementById("loginBox").classList.remove("hidden")
+
+function hideAll(){
+
+document.querySelectorAll("div").forEach(d=>{
+if(d.id!=="home") d.classList.add("hidden")
+})
+
 }
 
-function showRegister(){
-document.getElementById("roleSelect").classList.remove("hidden")
-}
 
-function selectRole(role){
-
-if(role==="student"){
+function showStudentRegister(){
+hideAll()
 document.getElementById("studentRegister").classList.remove("hidden")
 }
 
-if(role==="parent"){
-document.getElementById("trackBox").classList.remove("hidden")
+function showStudentLogin(){
+hideAll()
+document.getElementById("studentLogin").classList.remove("hidden")
 }
 
+function showParentRegister(){
+hideAll()
+document.getElementById("parentRegister").classList.remove("hidden")
 }
 
-function submitStudent(){
-
-studentData = {
-name:document.getElementById("name").value,
-roll:document.getElementById("roll").value,
-age:document.getElementById("age").value,
-gender:document.getElementById("gender").value,
-mother:document.getElementById("mother").value,
-father:document.getElementById("father").value,
-parentMobile:document.getElementById("parentMobile").value,
-studentMobile:document.getElementById("studentMobile").value
+function showTeacherRegister(){
+hideAll()
+document.getElementById("teacherRegister").classList.remove("hidden")
 }
 
-document.getElementById("showRoll").innerText =
-"Roll Number: "+studentData.roll
-
-document.getElementById("passwordScreen").classList.remove("hidden")
-
+function showParentTrack(){
+hideAll()
+document.getElementById("parentTrack").classList.remove("hidden")
 }
 
-function savePassword(){
+function showTeacherTrack(){
+hideAll()
+document.getElementById("teacherTrack").classList.remove("hidden")
+}
 
-studentData.password =
-document.getElementById("password").value
 
-fetch("/api/register/student",{
+// REGISTER STUDENT
+
+function registerStudent(){
+
+fetch("/api/student/register",{
+
 method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify(studentData)
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+name:sname.value,
+
+roll:sroll.value,
+
+faculty:sfaculty.value,
+
+age:sage.value,
+
+gender:sgender.value,
+
+password:spass.value
+
+})
+
 })
 
 .then(res=>res.json())
-.then(data=>{
-alert("Student Registered")
+
+.then(d=>{
+
+alert("Registered successfully")
+
 location.reload()
+
 })
 
 }
 
-function login(){
 
-let roll=document.getElementById("loginRoll").value
-let password=document.getElementById("loginPass").value
+// LOGIN STUDENT
 
-fetch("/api/login/student",{
+function loginStudent(){
+
+fetch("/api/student/login",{
+
 method:"POST",
-headers:{'Content-Type':'application/json'},
-body:JSON.stringify({roll,password})
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({
+
+roll:lroll.value,
+
+password:lpass.value
+
+})
+
 })
 
 .then(res=>res.json())
-.then(data=>{
 
-document.getElementById("loginMsg").innerText=data.message
+.then(d=>{
 
-if(data.message==="Login successful"){
-startTracking(roll)
-}
+alert(d.message)
+
+currentRoll=lroll.value
 
 })
 
 }
 
 
-function startTracking(roll){
+// START
 
-navigator.geolocation.watchPosition(position=>{
+function start(){
 
-let lat = position.coords.latitude
-let lng = position.coords.longitude
+fetch("/api/student/start",{
+
+method:"POST",
+
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({roll:currentRoll})
+
+})
+
+document.getElementById("status").innerText="Status: START"
+
+navigator.geolocation.watchPosition(pos=>{
 
 fetch("/api/location/update",{
+
 method:"POST",
-headers:{'Content-Type':'application/json'},
+
+headers:{"Content-Type":"application/json"},
+
 body:JSON.stringify({
-roll,
-lat,
-lng
+
+roll:currentRoll,
+
+lat:pos.coords.latitude,
+
+lng:pos.coords.longitude
+
 })
+
 })
 
 })
@@ -108,38 +158,92 @@ lng
 }
 
 
+// STOP
 
-function trackStudent(){
+function stop(){
 
-let roll=document.getElementById("trackRoll").value
+fetch("/api/student/stop",{
 
-map = L.map('map').setView([20,78],5)
+method:"POST",
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-maxZoom:19
-}).addTo(map)
+headers:{"Content-Type":"application/json"},
+
+body:JSON.stringify({roll:currentRoll})
+
+})
+
+document.getElementById("status").innerText="Status: STOP"
+
+}
+
+
+// PARENT TRACK
+
+function track(){
+
+let roll=trackRoll.value
+
+map=L.map("map").setView([20,78],5)
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map)
 
 setInterval(()=>{
 
-fetch(`/api/location/${roll}`)
-.then(res=>res.json())
-.then(data=>{
+fetch("/api/location/"+roll)
 
-if(!data.lat) return
+.then(r=>r.json())
 
-let lat = data.lat
-let lng = data.lng
+.then(d=>{
+
+if(!d.lat) return
 
 if(marker){
-marker.setLatLng([lat,lng])
-}
-else{
-marker = L.marker([lat,lng]).addTo(map)
-map.setView([lat,lng],15)
+marker.setLatLng([d.lat,d.lng])
+}else{
+marker=L.marker([d.lat,d.lng]).addTo(map)
+map.setView([d.lat,d.lng],15)
 }
 
 })
 
 },3000)
+
+}
+
+
+// TEACHER LOAD STUDENTS
+
+function loadStudents(){
+
+fetch("/api/teacher/students/"+facultySearch.value)
+
+.then(r=>r.json())
+
+.then(list=>{
+
+studentDropdown.innerHTML=""
+
+list.forEach(s=>{
+
+let opt=document.createElement("option")
+
+opt.value=s.roll
+
+opt.text=s.name+" - "+s.roll
+
+studentDropdown.appendChild(opt)
+
+})
+
+})
+
+}
+
+
+function trackSelected(){
+
+trackRoll={value:studentDropdown.value}
+
+track()
 
 }

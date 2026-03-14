@@ -1,38 +1,36 @@
 const sqlite3 = require("sqlite3").verbose();
 
-/* CREATE DATABASE FILE */
-const db = new sqlite3.Database("./safety_tracker.db", (err) => {
+const db = new sqlite3.Database("safety_tracker.db", (err) => {
     if (err) {
-        console.error("Database error:", err.message);
+        console.log("Database connection error:", err);
     } else {
         console.log("Connected to SQLite database");
     }
 });
 
+db.serialize(() => {
 
-/* CREATE USERS TABLE */
+    db.run(`
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            roll_number TEXT UNIQUE,
+            parent_mobile TEXT,
+            password TEXT
+        )
+    `);
 
-db.run(`
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    roll TEXT,
-    password TEXT
-)
-`);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS parents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parent_name TEXT,
+            child_roll TEXT,
+            mobile TEXT,
+            password TEXT
+        )
+    `);
 
-
-/* CREATE TRACKING TABLE */
-
-db.run(`
-CREATE TABLE IF NOT EXISTS tracking (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    roll TEXT,
-    latitude REAL,
-    longitude REAL,
-    time TEXT
-)
-`);
-
-
-module.exports = db;
+    db.run(`
+        CREATE TABLE IF NOT EXISTS faculty (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            faculty_name TEXT,

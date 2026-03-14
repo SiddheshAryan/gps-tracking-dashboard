@@ -8,17 +8,19 @@ const db = new sqlite3.Database("./safety_tracker.db", (err) => {
     }
 });
 
-// Create users table
+/* USERS TABLE */
+
 db.run(`
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
-    roll TEXT,
+    roll TEXT UNIQUE,
     password TEXT
 )
 `);
 
-// Create tracking table
+/* GPS TRACKING TABLE */
+
 db.run(`
 CREATE TABLE IF NOT EXISTS tracking (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

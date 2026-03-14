@@ -1,147 +1,286 @@
-const express = require("express")
-const app = express()
+const express = require("express");
+const app = express();
+const http = require("http").createServer(app);
 
-app.use(express.json())
-app.use(express.static("public"))
+const { Server } = require("socket.io");
+const io = new Server(http);
 
-const PORT = process.env.PORT || 3000
+const db = require("./database"); // SQLite database connection
 
-let students = []
-let parents = []
-let teachers = []
-let locations = {}
+app.use(express.json());
+app.use(express.static("client"));
 
+/*
+Store live locations of students
+rollNumber → {lat, lon}
+*/
+let studentLocations = {};
 
-// STUDENT REGISTER
-app.post("/api/student/register",(req,res)=>{
 
-let student=req.body
-student.status="STOP"
+/* ===============================
+   REGISTER USERS
+================================ */
 
-students.push(student)
+app.post("/register/student", (req, res) => {
 
-res.json({message:"Student registered"})
+    const { name, roll, parentMobile, password } = req.body;
 
-})
+    db.run(
+        `INSERT INTO students (name, roll_number, parent_mobile, password)
+         VALUES (?, ?, ?, ?)`,
+        [name, roll, parentMobile, password],
+        function (err) {
 
+            if (err) {
+                res.json({ success: false, message: "Student already exists" });
+            } else {
+                res.json({ success: true });
+            }
 
-// STUDENT LOGIN
-app.post("/api/student/login",(req,res)=>{
+        }
+    );
 
-let {roll,password}=req.body
+});
 
-let student = students.find(s=>s.roll===roll)
 
-if(!student){
-return res.json({message:"Student not found"})
-}
+app.post("/register/parent", (req, res) => {
 
-if(student.password!==password){
-return res.json({message:"Wrong password"})
-}
+    const { parentName, childRoll, mobile, password } = req.body;
 
-res.json({
-message:"Login successful",
-faculty:student.faculty
-})
+    db.run(
+        `INSERT INTO parents (parent_name, child_roll, mobile, password)
+         VALUES (?, ?, ?, ?)`,
+        [parentName, childRoll, mobile, password],
+        function (err) {
 
-})
+            if (err) {
+                res.json({ success: false });
+            } else {
+                res.json({ success: true });
+            }
 
+        }
+    );
 
-// START TRACKING
-app.post("/api/student/start",(req,res)=>{
+});
 
-let {roll}=req.body
 
-let student=students.find(s=>s.roll===roll)
+app.post("/register/faculty", (req, res) => {
 
-if(student){
-student.status="START"
-}
+    const { facultyName, subject, mobile, password } = req.body;
 
-res.json({message:"Tracking started"})
+    db.run(
+        `INSERT INTO faculty (faculty_name, subject, mobile, password)
+         VALUES (?, ?, ?, ?)`,
+        [facultyName, subject, mobile, password],
+        function (err) {
 
-})
+            if (err) {
+                res.json({ success: false });
+            } else {
+                res.json({ success: true });
+            }
 
+        }
+    );
 
-// STOP TRACKING
-app.post("/api/student/stop",(req,res)=>{
+});
 
-let {roll}=req.body
 
-let student=students.find(s=>s.roll===roll)
+/* ===============================
+   LOGIN USERS
+================================ */
 
-if(student){
-student.status="STOP"
-}
+app.post("/login/student", (req, res) => {
 
-res.json({message:"Tracking stopped"})
+    const { roll, password } = req.body;
 
-})
+    db.get(
+        `SELECT * FROM students WHERE roll_number = ? AND password = ?`,
+        [roll, password],
+        (err, row) => {
 
+            if (row) {
+                res.json({ success: true, name: row.name });
+            } else {
+                res.json({ success: false });
+            }
 
-// UPDATE LOCATION
-app.post("/api/location/update",(req,res)=>{
+        }
+    );
 
-let {roll,lat,lng}=req.body
+});
 
-locations[roll]={lat,lng,time:new Date()}
 
-res.json({message:"Location updated"})
+app.post("/login/parent", (req, res) => {
 
-})
+    const { mobile, password } = req.body;
 
+    db.get(
+        `SELECT * FROM parents WHERE mobile = ? AND password = ?`,
+        [mobile, password],
+        (err, row) => {
 
-// GET LOCATION
-app.get("/api/location/:roll",(req,res)=>{
+            if (row) {
+                res.json({ success: true, childRoll: row.child_roll });
+            } else {
+                res.json({ success: false });
+            }
 
-let roll=req.params.roll
+        }
+    );
 
-let location=locations[roll]
+});
 
-if(!location){
-return res.json({message:"Location not available"})
-}
 
-res.json(location)
+app.post("/login/faculty", (req, res) => {
 
-})
+    const { mobile, password } = req.body;
 
+    db.get(
+        `SELECT * FROM faculty WHERE mobile = ? AND password = ?`,
+        [mobile, password],
+        (err, row) => {
 
-// PARENT REGISTER
-app.post("/api/parent/register",(req,res)=>{
+            if (row) {
+                res.json({ success: true, faculty: row.faculty_name });
+            } else {
+                res.json({ success: false });
+            }
 
-parents.push(req.body)
+        }
+    );
 
-res.json({message:"Parent registered"})
+});
 
-})
 
+/* ===============================
+   START TRACKING (STORE START TIME)
+================================ */
 
-// TEACHER REGISTER
-app.post("/api/teacher/register",(req,res)=>{
+app.post("/startTracking", (req, res) => {
 
-teachers.push(req.body)
+    const { roll, lat, lon } = req.body;
 
-res.json({message:"Teacher registered"})
+    const time = new Date().toLocaleString();
 
-})
+    db.run(
+        `INSERT INTO tracking_logs (roll_number, start_time, start_lat, start_lon)
+         VALUES (?, ?, ?, ?)`,
+        [roll, time, lat, lon],
+        function (err) {
 
+            if (err) {
+                res.json({ success: false });
+            } else {
+                res.json({ success: true });
+            }
 
-// GET STUDENTS BY FACULTY
-app.get("/api/teacher/students/:faculty",(req,res)=>{
+        }
+    );
 
-let faculty=req.params.faculty
+});
 
-let list=students.filter(s=>s.faculty===faculty)
 
-res.json(list)
+/* ===============================
+   STOP TRACKING (STORE STOP TIME)
+================================ */
 
-})
+app.post("/stopTracking", (req, res) => {
 
+    const { roll, lat, lon } = req.body;
 
-app.listen(PORT,()=>{
+    const time = new Date().toLocaleString();
 
-console.log("Server running on port "+PORT)
+    db.run(
+        `UPDATE tracking_logs
+         SET stop_time = ?, stop_lat = ?, stop_lon = ?
+         WHERE roll_number = ?
+         AND stop_time IS NULL`,
+        [time, lat, lon, roll],
+        function (err) {
 
-})
+            if (err) {
+                res.json({ success: false });
+            } else {
+                res.json({ success: true });
+            }
+
+        }
+    );
+
+});
+
+
+/* ===============================
+   SOCKET CONNECTION
+================================ */
+
+io.on("connection", (socket) => {
+
+    console.log("User connected");
+
+    /* STUDENT SENDS LOCATION */
+
+    socket.on("locationUpdate", (data) => {
+
+        const roll = data.roll;
+        const lat = data.lat;
+        const lon = data.lon;
+
+        studentLocations[roll] = { lat, lon };
+
+        console.log("Location updated for:", roll);
+
+        io.emit("receiveLocation", {
+            roll: roll,
+            lat: lat,
+            lon: lon
+        });
+
+    });
+
+
+    /* PARENT / FACULTY TRACK STUDENT */
+
+    socket.on("trackStudent", (roll) => {
+
+        const location = studentLocations[roll];
+
+        if (location) {
+
+            socket.emit("receiveLocation", {
+                roll: roll,
+                lat: location.lat,
+                lon: location.lon
+            });
+
+        } else {
+
+            socket.emit("locationError", {
+                message: "Student location not available"
+            });
+
+        }
+
+    });
+
+
+    socket.on("disconnect", () => {
+        console.log("User disconnected");
+    });
+
+});
+
+
+/* ===============================
+   START SERVER
+================================ */
+
+const PORT = process.env.PORT || 3000;
+
+http.listen(PORT, () => {
+
+    console.log("✅ Safety Tracker Server Running on port", PORT);
+
+});

@@ -5,30 +5,113 @@
 
 <title>Student Dashboard</title>
 
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+padding:40px;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:10px;
+width:400px;
+margin:auto;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+button{
+padding:10px 20px;
+margin:10px;
+border:none;
+border-radius:8px;
+background:#4fa3ff;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
 </head>
 
 <body>
 
-<h1>Student Dashboard</h1>
+<div class="card">
 
-<p>Name: <span id="name"></span></p>
-<p>Roll Number: <span id="roll"></span></p>
+<h2 id="welcome"></h2>
+
+<p>Status: <span id="status">Stopped</span></p>
+
+<button onclick="start()">Start</button>
+
+<button onclick="stop()">Stop</button>
 
 <button onclick="logout()">Logout</button>
 
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
 <script>
 
-document.getElementById("name").innerText =
-localStorage.getItem("studentName")
+const socket = io()
 
-document.getElementById("roll").innerText =
-localStorage.getItem("studentRoll")
+let tracking=false
+
+document.getElementById("welcome").innerText =
+"Welcome "+localStorage.getItem("name")
+
+function start(){
+
+tracking=true
+
+document.getElementById("status").innerText="Tracking"
+
+navigator.geolocation.watchPosition((pos)=>{
+
+if(!tracking) return
+
+socket.emit("locationUpdate",{
+
+roll:localStorage.getItem("roll"),
+
+lat:pos.coords.latitude,
+
+lng:pos.coords.longitude,
+
+status:"running"
+
+})
+
+})
+
+}
+
+function stop(){
+
+tracking=false
+
+document.getElementById("status").innerText="Stopped"
+
+socket.emit("locationUpdate",{
+
+roll:localStorage.getItem("roll"),
+
+status:"stopped"
+
+})
+
+}
 
 function logout(){
 
 localStorage.clear()
 
-window.location.href="login.html"
+window.location.href="index.html"
 
 }
 

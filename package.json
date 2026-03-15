@@ -1,7 +1,7 @@
 {
   "name": "gps-tracking-dashboard",
   "version": "1.0.0",
-  "description": "Student Safety GPS Tracking System",
+  "description": "Student GPS Safety Tracker",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

@@ -2,78 +2,62 @@
 <html>
 
 <head>
-    <title>Safety Tracker</title>
-    <style>
-        body{
-            margin:0;
-            font-family:Arial, Helvetica, sans-serif;
-            height:100vh;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background: linear-gradient(120deg,#c8f7dc,#cbe8ff);
-        }
 
-        .container{
-            text-align:center;
-            background:white;
-            padding:50px;
-            border-radius:12px;
-            box-shadow:0px 5px 20px rgba(0,0,0,0.2);
-            width:420px;
-        }
+<title>Student Safety Tracker</title>
 
-        h1{
-            color:#006666;
-            font-size:40px;
-            margin-bottom:10px;
-        }
+<style>
 
-        p{
-            color:#555;
-            margin-bottom:30px;
-            line-height:1.5;
-        }
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
 
-        button{
-            padding:12px 30px;
-            font-size:18px;
-            margin:10px;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
-            background:#4fa3ff;
-            color:white;
-        }
+.container{
+text-align:center;
+}
 
-        button:hover{
-            background:#2e86de;
-        }
-    </style>
+h1{
+color:#006666;
+}
+
+button{
+padding:12px 25px;
+margin:10px;
+border:none;
+border-radius:8px;
+font-size:16px;
+cursor:pointer;
+background:#4fa3ff;
+color:white;
+}
+
+button:hover{
+background:#0077ff;
+}
+
+</style>
+
 </head>
 
 <body>
-    <div class="container">
-        <h1>Safety Tracker</h1>
 
-        <p>
-            A smart system that allows parents and faculty to track
-            student safety and location in real time.
-        </p>
+<div class="container">
 
-        <button onclick="goLogin()">Login</button>
-        <button onclick="goRegister()">Register</button>
-    </div>
+<h1>Student Safety Tracker</h1>
 
-    <script>
-        function goLogin(){
-            window.location.href = "login.html";
-        }
+<p>Real-time GPS monitoring for student safety</p>
 
-        function goRegister(){
-            window.location.href = "register.html";
-        }
-    </script>
+<button onclick="location.href='register.html'">Register</button>
+
+<button onclick="location.href='login.html'">Login</button>
+
+</div>
+
 </body>
 
 </html>

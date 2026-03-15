@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
@@ -15,11 +16,17 @@ const PORT = process.env.PORT || 10000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* SERVE HTML FILES */
+/* SERVE STATIC FILES */
 
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
-/* REGISTER */
+/* ROOT PAGE */
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
+});
+
+/* REGISTER USER */
 
 app.post("/register", (req, res) => {
 
@@ -71,7 +78,7 @@ app.post("/login", (req, res) => {
 
 });
 
-/* GPS TRACKING */
+/* SOCKET GPS TRACKING */
 
 io.on("connection", (socket) => {
 

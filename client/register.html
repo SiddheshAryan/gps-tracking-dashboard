@@ -1,48 +1,42 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
-<title>Register - Safety Tracker</title>
+<title>Register</title>
 
 <style>
 
 body{
-    margin:0;
-    font-family:Arial;
-    background: linear-gradient(120deg,#c8f7dc,#cbe8ff);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
 .container{
-    text-align:center;
+text-align:center;
 }
 
 .cards{
-    display:flex;
-    gap:30px;
-    margin-top:30px;
+display:flex;
+gap:30px;
+margin-top:30px;
 }
 
 .card{
-
-    background:white;
-    padding:40px;
-    border-radius:12px;
-    width:180px;
-    cursor:pointer;
-    box-shadow:0px 5px 15px rgba(0,0,0,0.2);
+background:white;
+padding:40px;
+border-radius:12px;
+width:180px;
+cursor:pointer;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
 .card:hover{
-    transform:scale(1.05);
-}
-
-h1{
-    color:#006666;
+transform:scale(1.05);
 }
 
 </style>
@@ -57,20 +51,11 @@ h1{
 
 <div class="cards">
 
-<div class="card" onclick="selectRole('student')">
-🎓
-<h3>Student</h3>
-</div>
+<div class="card" onclick="goStudent()">🎓<h3>Student</h3></div>
 
-<div class="card" onclick="selectRole('parent')">
-👨‍👩‍👧
-<h3>Parent</h3>
-</div>
+<div class="card" onclick="goParent()">👨‍👩‍👧<h3>Parent</h3></div>
 
-<div class="card" onclick="selectRole('faculty')">
-👩‍🏫
-<h3>Faculty</h3>
-</div>
+<div class="card" onclick="goFaculty()">👩‍🏫<h3>Faculty</h3></div>
 
 </div>
 
@@ -78,16 +63,19 @@ h1{
 
 <script>
 
-function selectRole(role){
+function goStudent(){
+window.location.href="registerStudent.html"
+}
 
-localStorage.setItem("role",role)
+function goParent(){
+window.location.href="registerParent.html"
+}
 
-window.location.href="registerForm.html"
-
+function goFaculty(){
+window.location.href="registerFaculty.html"
 }
 
 </script>
 
 </body>
-
 </html>

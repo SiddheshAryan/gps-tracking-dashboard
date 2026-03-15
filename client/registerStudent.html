@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Student Registration</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input,select{
+width:250px;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+background:#4fa3ff;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Student Registration</h2>
+
+<input id="name" placeholder="Student Name"><br>
+
+<input id="roll" placeholder="Roll Number"><br>
+
+<select id="gender">
+<option>Male</option>
+<option>Female</option>
+</select><br>
+
+<input id="father" placeholder="Father Name"><br>
+
+<input id="mother" placeholder="Mother Name"><br>
+
+<input id="phone" placeholder="Parent Mobile"><br>
+
+<button onclick="next()">Next</button>
+
+</div>
+
+<script>
+
+async function next(){
+
+const data={
+name:document.getElementById("name").value,
+roll:document.getElementById("roll").value,
+gender:document.getElementById("gender").value,
+father:document.getElementById("father").value,
+mother:document.getElementById("mother").value,
+parentPhone:document.getElementById("phone").value
+}
+
+await fetch("/registerStudent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+})
+
+localStorage.setItem("roll",data.roll)
+
+window.location.href="setStudentPassword.html"
+
+}
+
+</script>
+
+</body>
+</html>

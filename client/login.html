@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 
 <title>Login</title>
@@ -51,9 +50,9 @@ cursor:pointer;
 
 <div class="box">
 
-<h2>Login</h2>
+<h2>Welcome</h2>
 
-<input id="id" placeholder="Roll / Name"><br>
+<input id="id" placeholder="Roll Number / Name"><br>
 
 <input type="password" id="password" placeholder="Password"><br>
 
@@ -68,46 +67,33 @@ async function login(){
 const id=document.getElementById("id").value
 const password=document.getElementById("password").value
 
-const response = await fetch("/login",{
+const res=await fetch("/login",{
 method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({id,password})
 })
 
-const result = await response.json()
+const data=await res.json()
 
-if(result.role==="student"){
-
-localStorage.setItem("name",result.name)
-localStorage.setItem("roll",result.roll)
-
+if(data.role==="student"){
+localStorage.setItem("name",data.name)
+localStorage.setItem("roll",data.roll)
 window.location.href="studentDashboard.html"
-
 }
 
-else if(result.role==="parent"){
-
-localStorage.setItem("name",result.name)
-localStorage.setItem("roll",result.roll)
-
+else if(data.role==="parent"){
+localStorage.setItem("name",data.name)
+localStorage.setItem("roll",data.roll)
 window.location.href="parentDashboard.html"
-
 }
 
-else if(result.role==="faculty"){
-
-localStorage.setItem("name",result.name)
-
+else if(data.role==="faculty"){
+localStorage.setItem("name",data.name)
 window.location.href="facultyDashboard.html"
-
 }
 
 else{
-
-alert("Invalid Login")
-
+alert("Invalid login")
 }
 
 }
@@ -115,5 +101,4 @@ alert("Invalid Login")
 </script>
 
 </body>
-
 </html>

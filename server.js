@@ -11,13 +11,13 @@ const io = socketIO(server)
 
 app.use(bodyParser.json())
 
-/* SERVE FRONTEND */
+/* SERVE FRONTEND FILES */
 
 app.use(express.static("client"))
 
-/* ---------------------- */
+/* =============================== */
 /* STUDENT REGISTRATION */
-/* ---------------------- */
+/* =============================== */
 
 app.post("/registerStudent",(req,res)=>{
 
@@ -25,12 +25,20 @@ const {name,roll,gender,father,mother,parentPhone} = req.body
 
 db.run(
 "INSERT INTO students(name,roll,gender,father,mother,parentPhone) VALUES(?,?,?,?,?,?)",
-[name,roll,gender,father,mother,parentPhone]
+[name,roll,gender,father,mother,parentPhone],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
+
+res.json({status:"student saved"})
+}
 )
 
-res.json({message:"student saved"})
-
 })
+
+/* SET STUDENT PASSWORD */
 
 app.post("/setStudentPassword",(req,res)=>{
 
@@ -38,16 +46,22 @@ const {roll,password} = req.body
 
 db.run(
 "UPDATE students SET password=? WHERE roll=?",
-[password,roll]
-)
+[password,roll],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
 
-res.json({message:"password set"})
+res.json({status:"password set"})
+}
+)
 
 })
 
-/* ---------------------- */
+/* =============================== */
 /* PARENT REGISTRATION */
-/* ---------------------- */
+/* =============================== */
 
 app.post("/registerParent",(req,res)=>{
 
@@ -55,12 +69,20 @@ const {studentRoll,name} = req.body
 
 db.run(
 "INSERT INTO parents(name,studentRoll) VALUES(?,?)",
-[name,studentRoll]
+[name,studentRoll],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
+
+res.json({status:"parent saved"})
+}
 )
 
-res.json({message:"parent saved"})
-
 })
+
+/* SET PARENT PASSWORD */
 
 app.post("/setParentPassword",(req,res)=>{
 
@@ -68,16 +90,22 @@ const {studentRoll,password} = req.body
 
 db.run(
 "UPDATE parents SET password=? WHERE studentRoll=?",
-[password,studentRoll]
-)
+[password,studentRoll],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
 
-res.json({message:"parent password set"})
+res.json({status:"password set"})
+}
+)
 
 })
 
-/* ---------------------- */
+/* =============================== */
 /* FACULTY REGISTRATION */
-/* ---------------------- */
+/* =============================== */
 
 app.post("/registerFaculty",(req,res)=>{
 
@@ -85,12 +113,20 @@ const {name,mobile} = req.body
 
 db.run(
 "INSERT INTO faculty(name,mobile) VALUES(?,?)",
-[name,mobile]
+[name,mobile],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
+
+res.json({status:"faculty saved"})
+}
 )
 
-res.json({message:"faculty saved"})
-
 })
+
+/* SET FACULTY PASSWORD */
 
 app.post("/setFacultyPassword",(req,res)=>{
 
@@ -98,20 +134,30 @@ const {name,password} = req.body
 
 db.run(
 "UPDATE faculty SET password=? WHERE name=?",
-[password,name]
-)
+[password,name],
+(err)=>{
+if(err){
+console.log(err)
+return res.json({status:"error"})
+}
 
-res.json({message:"faculty password set"})
+res.json({status:"password set"})
+}
+)
 
 })
 
-/* ---------------------- */
-/* LOGIN */
-/* ---------------------- */
+/* =============================== */
+/* LOGIN SYSTEM */
+/* =============================== */
 
 app.post("/login",(req,res)=>{
 
-const {id,password} = req.body
+const {role,id,password} = req.body
+
+/* STUDENT LOGIN */
+
+if(role==="student"){
 
 db.get(
 "SELECT * FROM students WHERE roll=? AND password=?",
@@ -128,6 +174,16 @@ roll:row.roll
 
 }
 
+res.json({role:"none"})
+
+})
+
+}
+
+/* PARENT LOGIN */
+
+else if(role==="parent"){
+
 db.get(
 "SELECT * FROM parents WHERE studentRoll=? AND password=?",
 [id,password],
@@ -142,6 +198,16 @@ roll:row.studentRoll
 })
 
 }
+
+res.json({role:"none"})
+
+})
+
+}
+
+/* FACULTY LOGIN */
+
+else if(role==="faculty"){
 
 db.get(
 "SELECT * FROM faculty WHERE name=? AND password=?",
@@ -161,17 +227,17 @@ res.json({role:"none"})
 
 })
 
-})
+}
 
 })
 
-})
-
-/* ---------------------- */
-/* SOCKET GPS TRACKING */
-/* ---------------------- */
+/* =============================== */
+/* GPS LOCATION TRACKING */
+/* =============================== */
 
 io.on("connection",(socket)=>{
+
+console.log("Device connected")
 
 socket.on("locationUpdate",(data)=>{
 
@@ -188,9 +254,9 @@ io.emit("locationBroadcast",data)
 
 })
 
-/* ---------------------- */
-/* VIEW DATABASE DATA */
-/* ---------------------- */
+/* =============================== */
+/* VIEW DATABASE RECORDS */
+/* =============================== */
 
 app.get("/students",(req,res)=>{
 
@@ -216,7 +282,15 @@ res.json(rows)
 
 })
 
-/* ---------------------- */
+app.get("/locations",(req,res)=>{
+
+db.all("SELECT * FROM locations",(err,rows)=>{
+res.json(rows)
+})
+
+})
+
+/* =============================== */
 
 const PORT = process.env.PORT || 10000
 

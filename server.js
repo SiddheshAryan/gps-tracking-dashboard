@@ -11,22 +11,20 @@ const db = require("./database");
 
 const PORT = process.env.PORT || 10000;
 
-/* MIDDLEWARE */
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* SERVE STATIC FILES */
+/* SERVE CLIENT FOLDER */
 
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(path.join(__dirname, "client")));
 
 /* ROOT PAGE */
 
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "client", "index.html"));
 });
 
-/* REGISTER USER */
+/* REGISTER */
 
 app.post("/register", (req, res) => {
 
@@ -78,7 +76,7 @@ app.post("/login", (req, res) => {
 
 });
 
-/* SOCKET GPS TRACKING */
+/* GPS TRACKING */
 
 io.on("connection", (socket) => {
 
@@ -110,7 +108,5 @@ io.on("connection", (socket) => {
 /* START SERVER */
 
 server.listen(PORT, () => {
-
     console.log("✅ Safety Tracker Server Running on port", PORT);
-
 });

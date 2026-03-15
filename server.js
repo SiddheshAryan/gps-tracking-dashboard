@@ -11,6 +11,8 @@ const db = require("./database");
 
 const PORT = process.env.PORT || 10000;
 
+/* MIDDLEWARE */
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -18,95 +20,111 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "client")));
 
-/* ROOT ROUTE */
+/* HOME PAGE */
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "client", "index.html"));
-});
+app.get("/", (req,res)=>{
+res.sendFile(path.join(__dirname,"client","index.html"))
+})
 
-/* REGISTER */
+/* REGISTER USER */
 
-app.post("/register", (req, res) => {
+app.post("/register",(req,res)=>{
 
-    const { name, roll, password } = req.body;
+const {name,roll,password} = req.body
 
-    const sql = `
-    INSERT INTO users (name, roll, password)
-    VALUES (?, ?, ?)
-    `;
+const sql = `
+INSERT INTO users (name,roll,password)
+VALUES (?,?,?)
+`
 
-    db.run(sql, [name, roll, password], function(err) {
+db.run(sql,[name,roll,password],function(err){
 
-        if (err) {
-            console.log(err);
-            return res.send("Registration failed");
-        }
+if(err){
+console.log(err)
+return res.send("Registration failed")
+}
 
-        res.send("Registration successful");
+res.send("Registration successful")
 
-    });
+})
 
-});
+})
 
-/* LOGIN */
+/* LOGIN USER */
 
-app.post("/login", (req, res) => {
+app.post("/login",(req,res)=>{
 
-    const { roll, password } = req.body;
+const {roll,password} = req.body
 
-    const sql = `
-    SELECT * FROM users
-    WHERE roll = ? AND password = ?
-    `;
+const sql = `
+SELECT * FROM users
+WHERE roll = ? AND password = ?
+`
 
-    db.get(sql, [roll, password], (err, row) => {
+db.get(sql,[roll,password],(err,row)=>{
 
-        if (err) {
-            console.log(err);
-            return res.json({ success:false });
-        }
+if(err){
+console.log(err)
+return res.json({success:false})
+}
 
-        if (row) {
-            res.json({ success:true });
-        } else {
-            res.json({ success:false });
-        }
+if(row){
+res.json({success:true})
+}else{
+res.json({success:false})
+}
 
-    });
+})
 
-});
+})
 
-/* SOCKET GPS TRACKING */
+/* VIEW ALL REGISTERED USERS */
 
-io.on("connection", (socket) => {
+app.get("/users",(req,res)=>{
 
-    console.log("Device connected");
+db.all("SELECT * FROM users",(err,rows)=>{
 
-    socket.on("locationUpdate", (data) => {
+if(err){
+console.log(err)
+return res.send("Error fetching users")
+}
 
-        const { roll, latitude, longitude } = data;
+res.json(rows)
 
-        const time = new Date().toISOString();
+})
 
-        const sql = `
-        INSERT INTO tracking (roll, latitude, longitude, time)
-        VALUES (?, ?, ?, ?)
-        `;
+})
 
-        db.run(sql, [roll, latitude, longitude, time]);
+/* GPS TRACKING SOCKET */
 
-        io.emit("locationBroadcast", data);
+io.on("connection",(socket)=>{
 
-    });
+console.log("Device connected")
 
-    socket.on("disconnect", () => {
-        console.log("Device disconnected");
-    });
+socket.on("locationUpdate",(data)=>{
 
-});
+const {roll,latitude,longitude} = data
+const time = new Date().toISOString()
+
+const sql = `
+INSERT INTO tracking (roll,latitude,longitude,time)
+VALUES (?,?,?,?)
+`
+
+db.run(sql,[roll,latitude,longitude,time])
+
+io.emit("locationBroadcast",data)
+
+})
+
+socket.on("disconnect",()=>{
+console.log("Device disconnected")
+})
+
+})
 
 /* START SERVER */
 
-server.listen(PORT, () => {
-    console.log("✅ Safety Tracker Server Running on port", PORT);
-});
+server.listen(PORT,()=>{
+console.log("✅ Safety Tracker Server Running on port",PORT)
+})

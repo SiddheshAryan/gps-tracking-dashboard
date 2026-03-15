@@ -3,50 +3,111 @@
 
 <head>
 
-<title>Login - Safety Tracker</title>
+<title>Login</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input{
+width:250px;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+background:#4fa3ff;
+color:white;
+cursor:pointer;
+}
+
+</style>
 
 </head>
 
 <body>
 
+<div class="box">
+
 <h2>Login</h2>
 
-<input id="roll" placeholder="Roll Number"><br>
+<input id="id" placeholder="Roll / Name"><br>
+
 <input type="password" id="password" placeholder="Password"><br>
 
 <button onclick="login()">Login</button>
+
+</div>
 
 <script>
 
 async function login(){
 
-const roll = document.getElementById("roll").value
-const password = document.getElementById("password").value
+const id=document.getElementById("id").value
+const password=document.getElementById("password").value
 
 const response = await fetch("/login",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-roll:roll,
-password:password
-})
+body:JSON.stringify({id,password})
 })
 
 const result = await response.json()
 
-if(result.success){
+if(result.role==="student"){
 
-localStorage.setItem("studentName",result.name)
-localStorage.setItem("studentRoll",result.roll)
+localStorage.setItem("name",result.name)
+localStorage.setItem("roll",result.roll)
 
 window.location.href="studentDashboard.html"
 
 }
 
+else if(result.role==="parent"){
+
+localStorage.setItem("name",result.name)
+localStorage.setItem("roll",result.roll)
+
+window.location.href="parentDashboard.html"
+
+}
+
+else if(result.role==="faculty"){
+
+localStorage.setItem("name",result.name)
+
+window.location.href="facultyDashboard.html"
+
+}
+
 else{
+
 alert("Invalid Login")
+
 }
 
 }

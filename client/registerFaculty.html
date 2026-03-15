@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Faculty Registration</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+input{
+width:250px;
+padding:10px;
+margin-top:10px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:8px;
+background:#4fa3ff;
+color:white;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Faculty Registration</h2>
+
+<input id="name" placeholder="Faculty Name"><br>
+
+<input id="mobile" placeholder="Mobile Number"><br>
+
+<button onclick="next()">Next</button>
+
+</div>
+
+<script>
+
+async function next(){
+
+const name=document.getElementById("name").value
+const mobile=document.getElementById("mobile").value
+
+await fetch("/registerFaculty",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({name,mobile})
+})
+
+localStorage.setItem("facultyName",name)
+
+window.location.href="setFacultyPassword.html"
+
+}
+
+</script>
+
+</body>
+
+</html>

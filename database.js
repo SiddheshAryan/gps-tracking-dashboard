@@ -1,14 +1,18 @@
-const sqlite3 = require("sqlite3").verbose();
+const sqlite3 = require("sqlite3").verbose()
 
-const db = new sqlite3.Database("./safety_tracker.db",(err)=>{
+const db = new sqlite3.Database("./database.db",(err)=>{
+
 if(err){
-console.log(err.message)
-}else{
+console.log("Database error")
+}
+
+else{
 console.log("Connected to SQLite database")
 }
+
 })
 
-/* STUDENTS */
+/* STUDENTS TABLE */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS students(
@@ -23,7 +27,7 @@ password TEXT
 )
 `)
 
-/* PARENTS */
+/* PARENTS TABLE */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS parents(
@@ -34,7 +38,7 @@ password TEXT
 )
 `)
 
-/* FACULTY */
+/* FACULTY TABLE */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS faculty(
@@ -45,17 +49,17 @@ password TEXT
 )
 `)
 
-/* GPS TRACKING */
+/* LOCATION TRACKING */
 
 db.run(`
-CREATE TABLE IF NOT EXISTS tracking(
+CREATE TABLE IF NOT EXISTS locations(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 roll TEXT,
 latitude REAL,
 longitude REAL,
-time TEXT,
-status TEXT
+status TEXT,
+time DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 `)
 
-module.exports = db
+module.exports=db

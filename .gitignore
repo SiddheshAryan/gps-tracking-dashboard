@@ -1,3 +1,2 @@
 node_modules
-safety_tracker.db
-.env
+database.db

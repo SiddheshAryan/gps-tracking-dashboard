@@ -2,13 +2,11 @@ const sqlite3 = require("sqlite3").verbose();
 
 const db = new sqlite3.Database("./safety_tracker.db", (err) => {
     if (err) {
-        console.error("Database error:", err.message);
+        console.error(err.message);
     } else {
         console.log("Connected to SQLite database");
     }
 });
-
-/* USERS TABLE */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS users (
@@ -18,8 +16,6 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT
 )
 `);
-
-/* GPS TRACKING TABLE */
 
 db.run(`
 CREATE TABLE IF NOT EXISTS tracking (

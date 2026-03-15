@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Login</title>
+<title>Login - Safety Tracker</title>
 
 <style>
 
@@ -104,31 +104,51 @@ function selectRole(r){
 role=r
 
 document.getElementById("loginForm").innerHTML = `
-<input id="name" placeholder="Enter Name"><br>
+<input id="roll" placeholder="Enter Roll / ID"><br>
 <input type="password" id="password" placeholder="Enter Password"><br>
 <button onclick="login()">Login</button>
 `
 
 }
 
-function login(){
+async function login(){
 
-let name=document.getElementById("name").value
+let roll=document.getElementById("roll").value
 let password=document.getElementById("password").value
 
-let savedName = localStorage.getItem("regName")
-let savedPass = localStorage.getItem("password")
+const response = await fetch("/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+roll:roll,
+password:password
+})
+})
 
-if(name===savedName && password===savedPass){
+const result = await response.json()
+
+if(result.success){
 
 alert("Login Successful")
 
-window.location.href="dashboard.html"
+if(role==="student"){
+window.location.href="studentDashboard.html"
+}
 
-}else{
+else if(role==="parent"){
+window.location.href="parentDashboard.html"
+}
 
-alert("Login Unsuccessful")
+else{
+window.location.href="facultyDashboard.html"
+}
 
+}
+
+else{
+alert("Invalid Login Credentials")
 }
 
 }

@@ -11,18 +11,14 @@ const db = require("./database");
 
 const PORT = process.env.PORT || 10000;
 
-/* MIDDLEWARE */
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-/* SERVE CLIENT FOLDER */
-
-app.use(express.static(path.join(__dirname, "client")));
+app.use(express.static(path.join(__dirname,"client")));
 
 /* HOME PAGE */
 
-app.get("/", (req,res)=>{
+app.get("/",(req,res)=>{
 res.sendFile(path.join(__dirname,"client","index.html"))
 })
 
@@ -30,14 +26,14 @@ res.sendFile(path.join(__dirname,"client","index.html"))
 
 app.post("/register",(req,res)=>{
 
-const {name,roll,password} = req.body
+const {name,roll,parentName,phone,password} = req.body
 
 const sql = `
-INSERT INTO users (name,roll,password)
-VALUES (?,?,?)
+INSERT INTO users (name,roll,parentName,phone,password)
+VALUES (?,?,?,?,?)
 `
 
-db.run(sql,[name,roll,password],function(err){
+db.run(sql,[name,roll,parentName,phone,password],function(err){
 
 if(err){
 console.log(err)
@@ -69,8 +65,16 @@ return res.json({success:false})
 }
 
 if(row){
-res.json({success:true})
-}else{
+
+res.json({
+success:true,
+name:row.name,
+roll:row.roll
+})
+
+}
+
+else{
 res.json({success:false})
 }
 
@@ -78,14 +82,13 @@ res.json({success:false})
 
 })
 
-/* VIEW ALL REGISTERED USERS */
+/* VIEW USERS */
 
 app.get("/users",(req,res)=>{
 
 db.all("SELECT * FROM users",(err,rows)=>{
 
 if(err){
-console.log(err)
 return res.send("Error fetching users")
 }
 
@@ -95,7 +98,7 @@ res.json(rows)
 
 })
 
-/* GPS TRACKING SOCKET */
+/* GPS SOCKET */
 
 io.on("connection",(socket)=>{
 
@@ -122,8 +125,6 @@ console.log("Device disconnected")
 })
 
 })
-
-/* START SERVER */
 
 server.listen(PORT,()=>{
 console.log("✅ Safety Tracker Server Running on port",PORT)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 <title>Login</title>
@@ -22,9 +23,10 @@ padding:40px;
 border-radius:12px;
 text-align:center;
 box-shadow:0 5px 15px rgba(0,0,0,0.2);
+width:300px;
 }
 
-input{
+select,input{
 width:250px;
 padding:10px;
 margin-top:10px;
@@ -42,6 +44,10 @@ color:white;
 cursor:pointer;
 }
 
+button:hover{
+background:#0077ff;
+}
+
 </style>
 
 </head>
@@ -52,9 +58,15 @@ cursor:pointer;
 
 <h2>Welcome</h2>
 
-<input id="id" placeholder="Roll Number / Name"><br>
+<select id="role">
+<option value="student">Student</option>
+<option value="parent">Parent</option>
+<option value="faculty">Faculty</option>
+</select>
 
-<input type="password" id="password" placeholder="Password"><br>
+<input id="id" placeholder="Roll Number / Name">
+
+<input type="password" id="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
 
@@ -64,36 +76,54 @@ cursor:pointer;
 
 async function login(){
 
+const role=document.getElementById("role").value
 const id=document.getElementById("id").value
 const password=document.getElementById("password").value
 
-const res=await fetch("/login",{
+const res = await fetch("/login",{
+
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({id,password})
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({role,id,password})
+
 })
 
-const data=await res.json()
+const data = await res.json()
 
 if(data.role==="student"){
+
 localStorage.setItem("name",data.name)
 localStorage.setItem("roll",data.roll)
+
 window.location.href="studentDashboard.html"
+
 }
 
 else if(data.role==="parent"){
+
 localStorage.setItem("name",data.name)
 localStorage.setItem("roll",data.roll)
+
 window.location.href="parentDashboard.html"
+
 }
 
 else if(data.role==="faculty"){
+
 localStorage.setItem("name",data.name)
+
 window.location.href="facultyDashboard.html"
+
 }
 
 else{
-alert("Invalid login")
+
+alert("Invalid Login")
+
 }
 
 }
@@ -101,4 +131,5 @@ alert("Invalid login")
 </script>
 
 </body>
+
 </html>

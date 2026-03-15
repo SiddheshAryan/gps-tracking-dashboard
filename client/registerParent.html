@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Parent Registration</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(120deg,#c8f7dc,#cbe8ff);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:12px;
+text-align:center;
+}
+
+input{
+width:250px;
+padding:10px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Parent Registration</h2>
+
+<input id="roll" placeholder="Student Roll Number"><br>
+
+<input id="name" placeholder="Parent Name"><br>
+
+<button onclick="next()">Next</button>
+
+</div>
+
+<script>
+
+async function next(){
+
+const roll=document.getElementById("roll").value
+const name=document.getElementById("name").value
+
+await fetch("/registerParent",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({studentRoll:roll,name})
+})
+
+localStorage.setItem("roll",roll)
+
+window.location.href="setParentPassword.html"
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 const express = require("express")
-const path = require("path")
 const http = require("http")
 const socketIO = require("socket.io")
+const bodyParser = require("body-parser")
 
 const db = require("./database")
 
@@ -9,173 +9,155 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-const PORT = process.env.PORT || 10000
+app.use(bodyParser.json())
 
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+/* SERVE FRONTEND */
 
-app.use(express.static(path.join(__dirname,"client")))
+app.use(express.static("client"))
 
-/* HOME */
-
-app.get("/",(req,res)=>{
-res.sendFile(path.join(__dirname,"client","index.html"))
-})
-
+/* ---------------------- */
 /* STUDENT REGISTRATION */
+/* ---------------------- */
 
 app.post("/registerStudent",(req,res)=>{
 
 const {name,roll,gender,father,mother,parentPhone} = req.body
 
-db.run(`
-INSERT INTO students(name,roll,gender,father,mother,parentPhone)
-VALUES(?,?,?,?,?,?)
-`,[name,roll,gender,father,mother,parentPhone],function(err){
+db.run(
+"INSERT INTO students(name,roll,gender,father,mother,parentPhone) VALUES(?,?,?,?,?,?)",
+[name,roll,gender,father,mother,parentPhone]
+)
 
-if(err){
-return res.send("Registration Failed")
-}
-
-res.send("Student Registered")
+res.json({message:"student saved"})
 
 })
-
-})
-
-/* SET STUDENT PASSWORD */
 
 app.post("/setStudentPassword",(req,res)=>{
 
 const {roll,password} = req.body
 
-db.run(`
-UPDATE students
-SET password = ?
-WHERE roll = ?
-`,[password,roll],function(err){
+db.run(
+"UPDATE students SET password=? WHERE roll=?",
+[password,roll]
+)
 
-if(err){
-return res.send("Password Error")
-}
-
-res.send("Password Set Successfully")
+res.json({message:"password set"})
 
 })
 
-})
-
+/* ---------------------- */
 /* PARENT REGISTRATION */
+/* ---------------------- */
 
 app.post("/registerParent",(req,res)=>{
 
-const {name,studentRoll} = req.body
+const {studentRoll,name} = req.body
 
-db.run(`
-INSERT INTO parents(name,studentRoll)
-VALUES(?,?)
-`,[name,studentRoll],function(err){
+db.run(
+"INSERT INTO parents(name,studentRoll) VALUES(?,?)",
+[name,studentRoll]
+)
 
-if(err){
-return res.send("Parent Registration Failed")
-}
-
-res.send("Parent Registered")
+res.json({message:"parent saved"})
 
 })
-
-})
-
-/* SET PARENT PASSWORD */
 
 app.post("/setParentPassword",(req,res)=>{
 
 const {studentRoll,password} = req.body
 
-db.run(`
-UPDATE parents
-SET password = ?
-WHERE studentRoll = ?
-`,[password,studentRoll],function(err){
+db.run(
+"UPDATE parents SET password=? WHERE studentRoll=?",
+[password,studentRoll]
+)
 
-if(err){
-return res.send("Password Error")
-}
-
-res.send("Password Set")
+res.json({message:"parent password set"})
 
 })
 
-})
-
+/* ---------------------- */
 /* FACULTY REGISTRATION */
+/* ---------------------- */
 
 app.post("/registerFaculty",(req,res)=>{
 
 const {name,mobile} = req.body
 
-db.run(`
-INSERT INTO faculty(name,mobile)
-VALUES(?,?)
-`,[name,mobile],function(err){
+db.run(
+"INSERT INTO faculty(name,mobile) VALUES(?,?)",
+[name,mobile]
+)
 
-if(err){
-return res.send("Faculty Registration Failed")
-}
-
-res.send("Faculty Registered")
+res.json({message:"faculty saved"})
 
 })
-
-})
-
-/* SET FACULTY PASSWORD */
 
 app.post("/setFacultyPassword",(req,res)=>{
 
 const {name,password} = req.body
 
-db.run(`
-UPDATE faculty
-SET password = ?
-WHERE name = ?
-`,[password,name],function(err){
+db.run(
+"UPDATE faculty SET password=? WHERE name=?",
+[password,name]
+)
 
-if(err){
-return res.send("Password Error")
-}
-
-res.send("Password Set")
+res.json({message:"faculty password set"})
 
 })
 
-})
-
+/* ---------------------- */
 /* LOGIN */
+/* ---------------------- */
 
 app.post("/login",(req,res)=>{
 
 const {id,password} = req.body
 
-db.get("SELECT * FROM students WHERE roll=? AND password=?",[id,password],(err,row)=>{
+db.get(
+"SELECT * FROM students WHERE roll=? AND password=?",
+[id,password],
+(err,row)=>{
 
 if(row){
-return res.json({role:"student",name:row.name,roll:row.roll})
+
+return res.json({
+role:"student",
+name:row.name,
+roll:row.roll
+})
+
 }
 
-db.get("SELECT * FROM parents WHERE studentRoll=? AND password=?",[id,password],(err,row)=>{
+db.get(
+"SELECT * FROM parents WHERE studentRoll=? AND password=?",
+[id,password],
+(err,row)=>{
 
 if(row){
-return res.json({role:"parent",name:row.name,roll:row.studentRoll})
+
+return res.json({
+role:"parent",
+name:row.name,
+roll:row.studentRoll
+})
+
 }
 
-db.get("SELECT * FROM faculty WHERE name=? AND password=?",[id,password],(err,row)=>{
+db.get(
+"SELECT * FROM faculty WHERE name=? AND password=?",
+[id,password],
+(err,row)=>{
 
 if(row){
-return res.json({role:"faculty",name:row.name})
+
+return res.json({
+role:"faculty",
+name:row.name
+})
+
 }
 
-res.json({role:null})
+res.json({role:"none"})
 
 })
 
@@ -185,27 +167,9 @@ res.json({role:null})
 
 })
 
-/* VIEW DATABASE */
-
-app.get("/students",(req,res)=>{
-db.all("SELECT * FROM students",(err,rows)=>{
-res.json(rows)
-})
-})
-
-app.get("/parents",(req,res)=>{
-db.all("SELECT * FROM parents",(err,rows)=>{
-res.json(rows)
-})
-})
-
-app.get("/faculty",(req,res)=>{
-db.all("SELECT * FROM faculty",(err,rows)=>{
-res.json(rows)
-})
-})
-
-/* GPS SOCKET */
+/* ---------------------- */
+/* SOCKET GPS TRACKING */
+/* ---------------------- */
 
 io.on("connection",(socket)=>{
 
@@ -213,12 +177,10 @@ socket.on("locationUpdate",(data)=>{
 
 const {roll,lat,lng,status} = data
 
-const time = new Date().toISOString()
-
-db.run(`
-INSERT INTO tracking(roll,latitude,longitude,time,status)
-VALUES(?,?,?,?,?)
-`,[roll,lat,lng,time,status])
+db.run(
+"INSERT INTO locations(roll,latitude,longitude,status) VALUES(?,?,?,?)",
+[roll,lat,lng,status]
+)
 
 io.emit("locationBroadcast",data)
 
@@ -226,7 +188,40 @@ io.emit("locationBroadcast",data)
 
 })
 
-server.listen(PORT,()=>{
-console.log("Server running on",PORT)
+/* ---------------------- */
+/* VIEW DATABASE DATA */
+/* ---------------------- */
+
+app.get("/students",(req,res)=>{
+
+db.all("SELECT * FROM students",(err,rows)=>{
+res.json(rows)
 })
 
+})
+
+app.get("/parents",(req,res)=>{
+
+db.all("SELECT * FROM parents",(err,rows)=>{
+res.json(rows)
+})
+
+})
+
+app.get("/faculty",(req,res)=>{
+
+db.all("SELECT * FROM faculty",(err,rows)=>{
+res.json(rows)
+})
+
+})
+
+/* ---------------------- */
+
+const PORT = process.env.PORT || 10000
+
+server.listen(PORT,()=>{
+
+console.log("Safety Tracker Server Running on port "+PORT)
+
+})

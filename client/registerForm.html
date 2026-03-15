@@ -3,7 +3,7 @@
 
 <head>
 
-<title>Registration Form</title>
+<title>Register Form - Safety Tracker</title>
 
 <style>
 
@@ -21,17 +21,12 @@ body{
     background:white;
     padding:40px;
     border-radius:12px;
-    width:350px;
+    text-align:center;
     box-shadow:0px 5px 15px rgba(0,0,0,0.2);
 }
 
-h2{
-    text-align:center;
-    color:#006666;
-}
-
 input{
-    width:100%;
+    width:250px;
     padding:10px;
     margin-top:10px;
     border-radius:6px;
@@ -39,14 +34,12 @@ input{
 }
 
 button{
-    width:100%;
-    padding:12px;
-    margin-top:20px;
+    padding:10px 20px;
+    margin-top:15px;
     border:none;
     border-radius:8px;
     background:#4fa3ff;
     color:white;
-    font-size:16px;
     cursor:pointer;
 }
 
@@ -58,63 +51,50 @@ button{
 
 <div class="container">
 
-<h2 id="title"></h2>
+<h2>Register</h2>
 
-<div id="formArea"></div>
+<input id="name" placeholder="Enter Name"><br>
 
-<button onclick="next()">Next</button>
+<input id="roll" placeholder="Enter Roll / ID"><br>
+
+<input type="password" id="password" placeholder="Enter Password"><br>
+
+<button onclick="register()">Register</button>
 
 </div>
 
 <script>
 
-let role = localStorage.getItem("role")
+async function register(){
 
-document.getElementById("title").innerText = role.toUpperCase()+" Registration"
+const name = document.getElementById("name").value
+const roll = document.getElementById("roll").value
+const password = document.getElementById("password").value
 
-let form = document.getElementById("formArea")
-
-if(role==="student"){
-
-form.innerHTML = `
-<input id="name" placeholder="Name">
-<input id="roll" placeholder="Roll Number">
-<input id="gender" placeholder="Gender">
-<input id="faculty" placeholder="Faculty Name">
-<input id="mother" placeholder="Mother Name">
-<input id="father" placeholder="Father Name">
-<input id="parentMobile" placeholder="Parent Mobile Number">
-`
-
+if(name==="" || roll==="" || password===""){
+alert("Please fill all fields")
+return
 }
 
-if(role==="parent"){
+const response = await fetch("/register",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:name,
+roll:roll,
+password:password
+})
+})
 
-form.innerHTML = `
-<input id="name" placeholder="Parent Name">
-<input id="roll" placeholder="Child Roll Number">
-<input id="mobile" placeholder="Mobile Number">
-`
+const result = await response.text()
 
+alert(result)
+
+if(result === "Registration successful"){
+window.location.href="login.html"
 }
-
-if(role==="faculty"){
-
-form.innerHTML = `
-<input id="name" placeholder="Faculty Name">
-<input id="subject" placeholder="Subject">
-<input id="mobile" placeholder="Mobile Number">
-`
-
-}
-
-function next(){
-
-let name = document.getElementById("name").value
-
-localStorage.setItem("regName",name)
-
-window.location.href="setPassword.html"
 
 }
 

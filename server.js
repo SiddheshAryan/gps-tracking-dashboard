@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(path.join(__dirname, "client")));
 
-/* ROOT PAGE */
+/* ROOT ROUTE */
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "client", "index.html"));
@@ -76,7 +76,7 @@ app.post("/login", (req, res) => {
 
 });
 
-/* GPS TRACKING */
+/* SOCKET GPS TRACKING */
 
 io.on("connection", (socket) => {
 
